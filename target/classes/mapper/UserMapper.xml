@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yooai.dao.UserMapper" >
+  <resultMap id="BaseResultMap" type="com.yooai.modal.User" >
+    <id column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="user_name" property="userName" jdbcType="VARCHAR" />
+    <result column="user_email" property="userEmail" jdbcType="VARCHAR" />
+    <result column="user_password" property="userPassword" jdbcType="VARCHAR" />
+    <result column="sex" property="sex" jdbcType="INTEGER" />
+    <result column="birthday" property="birthday" jdbcType="DATE" />
+    <result column="emotion_state" property="emotionState" jdbcType="INTEGER" />
+    <result column="now_place" property="nowPlace" jdbcType="VARCHAR" />
+    <result column="hobby" property="hobby" jdbcType="VARCHAR" />
+    <result column="head_icon" property="headIcon" jdbcType="VARCHAR" />
+    <result column="level" property="level" jdbcType="INTEGER" />
+     <result column="vistors" property="vistors" jdbcType="INTEGER" />
+    <result column="email_eable" property="emailEable" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    user_id, user_name,user_email, user_password, sex, birthday, emotion_state, now_place, hobby, 
+    head_icon, level,vistors,email_eable
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from user
+    where user_id = #{userId,jdbcType=INTEGER}
+  </select>
+  <select id="selectfuzzyByUserName" resultType="User" parameterType="java.lang.String" >
+		SELECT user_id userId,user_name userName,
+		user_password userPassword,	sex,user_email userEmail,
+		birthday,emotion_state emotionState,now_place nowPlace,
+		hobby,head_icon headIcon,`level`,email_eable emailEable,
+		vistors FROM `user` WHERE user_name LIKE '%' #{name} '%'
+  </select>
+  
+  <select id="selectByNameAndEmail" resultMap="BaseResultMap"  parameterType="java.lang.String" >
+		   SELECT
+		 <include refid="Base_Column_List" /> 
+		 FROM
+		(
+		SELECT <include refid="Base_Column_List" /> FROM `user`
+		WHERE user_name=#{userName} 
+		OR user_email=#{userName}
+		)temp
+		WHERE user_password=#{userPassword}
+  </select>
+  
+  <select id="selectByUserName" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from user
+    where user_name = #{userName,jdbcType=VARCHAR}
+  </select>
+  
+    <select id="selectByUserEmail" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from user
+    where user_email = #{userEmail,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from user
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from user
+    where user_id = #{userId,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insertSelective" parameterType="com.yooai.modal.User"  keyProperty="userId">
+    insert into user
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="userName != null" >
+        user_name,
+      </if>
+      
+      <if test="userPassword != null" >
+        user_password,
+      </if>
+       <if test="userEmail != null" >
+        user_email,
+      </if>
+      <if test="sex != null" >
+        sex,
+      </if>
+      <if test="birthday != null" >
+        birthday,
+      </if>
+      <if test="emotionState != null" >
+        emotion_state,
+      </if>
+      <if test="nowPlace != null" >
+        now_place,
+      </if>
+      <if test="hobby != null" >
+        hobby,
+      </if>
+      <if test="headIcon != null" >
+        head_icon,
+      </if>
+      <if test="level != null" >
+        level,
+      </if>
+      <if test="vistors != null" >
+        vistors,
+      </if>
+         <if test="emailEable != null" >
+        email_eable,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="userName != null" >
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="userPassword != null" >
+        #{userPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="userEmail != null" >
+        #{userEmail,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        #{sex,jdbcType=INTEGER},
+      </if>
+      <if test="birthday != null" >
+        #{birthday,jdbcType=DATE},
+      </if>
+      <if test="emotionState != null" >
+        #{emotionState,jdbcType=INTEGER},
+      </if>
+      <if test="nowPlace != null" >
+        #{nowPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="hobby != null" >
+        #{hobby,jdbcType=VARCHAR},
+      </if>
+      <if test="headIcon != null" >
+        #{headIcon,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null" >
+        #{level,jdbcType=INTEGER},
+      </if>
+      <if test="vistors != null" >
+        #{vistors,jdbcType=INTEGER},
+      </if>
+      <if test="emailEable != null" >
+        #{email_eable,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.yooai.modal.User" >
+    update user
+    <set >
+      <if test="userName != null" >
+        user_name = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="userEmail != null" >
+        user_email = #{userEmail ,jdbcType=VARCHAR},
+      </if>
+      <if test="userPassword != null" >
+        user_password = #{userPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        sex = #{sex,jdbcType=INTEGER},
+      </if>
+      <if test="birthday != null" >
+        birthday = #{birthday,jdbcType=DATE},
+      </if>
+      <if test="emotionState != null" >
+        emotion_state = #{emotionState,jdbcType=INTEGER},
+      </if>
+      <if test="nowPlace != null" >
+        now_place = #{nowPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="hobby != null" >
+        hobby = #{hobby,jdbcType=VARCHAR},
+      </if>
+      <if test="headIcon != null" >
+        head_icon = #{headIcon,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null" >
+        level = #{level,jdbcType=INTEGER},
+      </if>
+      <if test="vistors != null" >
+        vistors = #{vistors,jdbcType=INTEGER},
+      </if>
+       <if test="emailEable != null" >
+        email_eable = #{emailEable ,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where user_id = #{userId,jdbcType=INTEGER}
+  </update>
+  
+  
+</mapper>

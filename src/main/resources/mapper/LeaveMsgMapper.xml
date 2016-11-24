@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yooai.dao.LeaveMsgMapper" >
+  <resultMap id="BaseResultMap" type="com.yooai.modal.LeaveMsg" >
+    <id column="lmsg_id" property="lmsgId" jdbcType="INTEGER" />
+    <result column="host_id" property="hostId" jdbcType="INTEGER" />
+    <result column="tourist_id" property="touristId" jdbcType="INTEGER" />
+    <result column="lmsg_datatime" property="lmsgDatatime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.yooai.modal.LeaveMsg" extends="BaseResultMap" >
+    <result column="lmsg_content" property="lmsgContent" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    lmsg_id, host_id, tourist_id, lmsg_datatime
+  </sql>
+  <sql id="Blob_Column_List" >
+    lmsg_content
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from leavemsg
+    where lmsg_id = #{lmsgId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from leavemsg
+    where lmsg_id = #{lmsgId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.yooai.modal.LeaveMsg" >
+    insert into leavemsg (lmsg_id, host_id, tourist_id, 
+      lmsg_datatime, lmsg_content)
+    values (#{lmsgId,jdbcType=INTEGER}, #{hostId,jdbcType=INTEGER}, #{touristId,jdbcType=INTEGER}, 
+      #{lmsgDatatime,jdbcType=TIMESTAMP}, #{lmsgContent,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yooai.modal.LeaveMsg" >
+    insert into leavemsg
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="lmsgId != null" >
+        lmsg_id,
+      </if>
+      <if test="hostId != null" >
+        host_id,
+      </if>
+      <if test="touristId != null" >
+        tourist_id,
+      </if>
+      <if test="lmsgDatatime != null" >
+        lmsg_datatime,
+      </if>
+      <if test="lmsgContent != null" >
+        lmsg_content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="lmsgId != null" >
+        #{lmsgId,jdbcType=INTEGER},
+      </if>
+      <if test="hostId != null" >
+        #{hostId,jdbcType=INTEGER},
+      </if>
+      <if test="touristId != null" >
+        #{touristId,jdbcType=INTEGER},
+      </if>
+      <if test="lmsgDatatime != null" >
+        #{lmsgDatatime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lmsgContent != null" >
+        #{lmsgContent,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yooai.modal.LeaveMsg" >
+    update leavemsg
+    <set >
+      <if test="hostId != null" >
+        host_id = #{hostId,jdbcType=INTEGER},
+      </if>
+      <if test="touristId != null" >
+        tourist_id = #{touristId,jdbcType=INTEGER},
+      </if>
+      <if test="lmsgDatatime != null" >
+        lmsg_datatime = #{lmsgDatatime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lmsgContent != null" >
+        lmsg_content = #{lmsgContent,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where lmsg_id = #{lmsgId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.yooai.modal.LeaveMsg" >
+    update leavemsg
+    set host_id = #{hostId,jdbcType=INTEGER},
+      tourist_id = #{touristId,jdbcType=INTEGER},
+      lmsg_datatime = #{lmsgDatatime,jdbcType=TIMESTAMP},
+      lmsg_content = #{lmsgContent,jdbcType=LONGVARCHAR}
+    where lmsg_id = #{lmsgId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yooai.modal.LeaveMsg" >
+    update leavemsg
+    set host_id = #{hostId,jdbcType=INTEGER},
+      tourist_id = #{touristId,jdbcType=INTEGER},
+      lmsg_datatime = #{lmsgDatatime,jdbcType=TIMESTAMP}
+    where lmsg_id = #{lmsgId,jdbcType=INTEGER}
+  </update>
+</mapper>

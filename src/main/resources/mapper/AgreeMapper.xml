@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yooai.dao.AgreeMapper" >
+  <resultMap id="BaseResultMap" type="com.yooai.modal.AgreeKey" >
+    <id column="say_id" property="userId" jdbcType="INTEGER" />
+    <id column="friend_id" property="sayId" jdbcType="INTEGER" />
+  </resultMap>
+ <delete id="deleteByPrimaryKey" parameterType="com.yooai.modal.AgreeKey" >
+    delete from agree
+    where say_id = #{sayId,jdbcType=INTEGER}
+      and friend_id = #{friendId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insertSelective" parameterType="com.yooai.modal.AgreeKey" >
+    insert into agree
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="sayId != null" >
+        say_id,
+      </if>
+      <if test="friendId != null" >
+        friend_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="sayId != null" >
+        #{sayId,jdbcType=INTEGER},
+      </if>
+      <if test="friendId != null" >
+        #{friendId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+</mapper>

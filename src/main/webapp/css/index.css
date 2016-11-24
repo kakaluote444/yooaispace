@@ -1,0 +1,74 @@
+.sendBox{
+	/*background: pink;*/
+	height: 150px;
+}
+.rightBox{
+	/*height: 800px;*/
+}
+.sayBox{
+	margin-left: 25px;
+}
+.userBox {
+	background: white;
+	text-align: center;
+	margin-bottom: 50px;
+}
+.userBox img{
+	width: 80px;
+	height: 80px;
+}
+.userBox ul li{
+	list-style: none;
+}
+.honeyBox{
+	height: 300px;
+	text-align: center;
+}
+.honeyImag{
+	float: left;
+	margin-left: 70px;
+}
+.honeyImag img{
+	margin-top: 6px;
+	width: 50px;
+	height: 50px;
+}
+.honeyMsg{
+	float:left;
+}
+.editorBox{
+}
+.btnGroupBox{
+	text-align: center;
+}
+.preViewBox{
+	height: 100px;
+}
+.riziBtn{
+	border-color: transparent;
+	padding-bottom: 10px;
+}
+/* 2016年8月25日09:29:00新增样式 */
+.searchResultBox{
+	  display: none;  
+}
+.searchResultItem{
+	float: left;
+	margin-left: 50px;
+}
+.sayLabel{
+	margin-left: 15px;
+}
+.comments{
+	height: 50px;
+}
+.tool{
+	margin-left: 15px;
+}
+.sendBtn{
+	float:left;	
+}
+.sayImgClass{
+	
+}
+

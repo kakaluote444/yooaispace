@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yooai.dao.SayMapper">
+	<resultMap id="BaseResultMap" type="com.yooai.modal.Say">
+		<id column="say_id" property="sayId" jdbcType="INTEGER" />
+		<result column="user_id" property="userId" jdbcType="INTEGER" />
+		<result column="say_views" property="sayViews" jdbcType="INTEGER" />
+		<result column="say_sendtime" property="saySendtime" jdbcType="TIMESTAMP" />
+		<result column="say_lovers" property="sayLovers" jdbcType="INTEGER" />
+		<result column="say_open" property="sayOpen" jdbcType="INTEGER" />
+		<result column="say_delete" property="sayDelete" jdbcType="INTEGER" />
+		<result column="read_status" property="readStatus" jdbcType="INTEGER" />
+		<result column="top" property="top" jdbcType="INTEGER" />
+	</resultMap>
+	<resultMap id="ResultMapWithBLOBs" type="com.yooai.modal.Say"
+		extends="BaseResultMap">
+		<result column="say_content" property="sayContent" jdbcType="LONGVARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		say_id, user_id, say_views, say_sendtime, say_lovers,
+		say_open, say_delete,
+		read_status,
+		top
+	</sql>
+	<sql id="Blob_Column_List">
+		say_content
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		,
+		<include refid="Blob_Column_List" />
+		from say
+		where say_id = #{sayId,jdbcType=INTEGER}
+	</select>
+
+	<select id="selectUserSayDetail" resultMap="SayCommentDTOResultMap">
+		SELECT
+		say_id sayId,u.user_id userId,
+		user_name userName,
+		head_icon headIcon, say_sendtime
+		saySendTime,
+		say_content sayContent,say_lovers sayLovers,
+		say_views
+		sayViews,say_open sayOpen,
+		say_delete sayDelete
+		FROM `user` u,say s
+		WHERE u.user_id = s.user_id
+		AND
+		s.say_id=#{sayId}
+		ORDER BY saySendTime DESC
+	</select>
+	<select id="getAllCount" resultType="int">
+		SELECT COUNT(1) FROM say
+	</select>
+
+	<!--查看分类下（指定分类的typeId）的说说总数 -->
+	<select id="getCountUnderTypeId" parameterType="int" resultType="int">
+		SELECT COUNT(1)
+		FROM type t,say_type st
+		WHERE t.type_id = st.type_id
+		AND
+		t.type_id=#{typeId}
+	</select>
+
+	<!--通过分类查询该分类下的所有说说 -->
+	<select id="selectSayByTypeId" resultMap="TypeSayDTOResultMap"
+		parameterType="int">
+		SELECT
+		typeId_1 typeId,user_name userName,head_icon headIcon,
+		saySendTime_1 saySendTime,sayContent_1 sayContent,
+		sayViews_1
+		sayViews,sayLovers_1 sayLovers,sayOpen_1 sayOpen,
+		sayDelete_1 sayDelte
+		FROM
+		(
+		SELECT
+		typeId_1 typeId_1,user_id userId_1,sayId_1
+		sayId_2,say_views sayViews_1,
+		say_sendtime saySendTime_1,say_lovers
+		sayLovers_1,
+		say_open sayOpen_1,say_delete sayDelete_1,say_content
+		sayContent_1
+		FROM
+		(
+		SELECT t.type_id typeId_1,st.say_id sayId_1
+		FROM type
+		t,say_type st
+		WHERE t.type_id = st.type_id
+		AND t.type_id=#{typeId}
+		)temp,say s
+		WHERE temp.sayId_1 = s.say_id
+		AND user_id in (SELECT
+		f.friend_id FROM friend f WHERE f.user_id =
+		#{userId})
+		OR user_id =
+		#{userId}<!-- 用户名 -->
+		)temp1,`user` u
+		WHERE temp1.userId_1 = u.user_id
+		ORDER BY saySendTime
+		DESC
+		LIMIT #{beginIndex},#{pageSize}
+	</select>
+
+	<!--只查询指定用户的说说，不查别人的 -->
+	<select id="selectOneUserSay" resultMap="SayCommentDTOResultMap">
+		SELECT
+		say_id sayId,user_name userName,head_icon headIcon,
+		say_sendtime
+		saySendTime,say_content sayContent,say_lovers sayLovers,
+		say_views
+		sayViews,say_open sayOpen,say_delete sayDelete
+		FROM `user` u,say s
+		WHERE u.user_id = s.user_id
+		AND u.user_id =#{userId}
+		<if test="userName != null">
+			AND
+			user_name=#{userName}
+		</if>
+		<if test="sayContent != null">
+			AND
+			say_content LIKE '%' #{sayContent} '%'
+		</if>
+		ORDER BY saySendTime DESC
+		<if test="beginIndex != null or pageSize!=null">
+			LIMIT #{beginIndex},#{pageSize}
+		</if>
+	</select>
+
+	<select id="selectUserAndSayByPage" resultMap="SayCommentDTOResultMap">
+		SELECT
+		u.user_id userId,say_id sayId,user_name userName,head_icon headIcon,
+		say_sendtime
+		saySendTime,say_content sayContent,say_lovers sayLovers,
+		say_views
+		sayViews,say_open sayOpen,say_delete sayDelete
+		FROM `user` u,say s
+		WHERE u.user_id = s.user_id
+		AND u.user_id in (SELECT f.friend_id FROM
+		friend f WHERE f.user_id =
+		#{userId})
+		<if test="userName != null">
+			AND
+			user_name=#{userName}
+		</if>
+		<if test="sayContent != null">
+			AND
+			say_content LIKE '%' #{sayContent} '%'
+		</if>
+		ORDER BY saySendTime DESC
+		LIMIT #{beginIndex},#{pageSize}
+	</select>
+	<select id="selectCommentBySayPrimaryKey" resultMap="SayCommentDTOResultMap"
+		parameterType="java.lang.Integer">
+		SELECT
+		commenterId_2 commenterId,commenteredId_2
+		commenteredId,
+		sayId_2 sayId,userName_2 userName,headIcon_2 headIcon,
+		sayContent_2 sayContent,saySendTime_2 saySendTime,
+		sayViews_2
+		sayViews,sayLovers_2 sayLovers,sayDelete_2 sayDelete,
+		sayOpen_2
+		sayOpen,commenterName_2 commenterName,user_name commenteredName,
+		commentContent_2 commentContent,typeName_2 typeName,typeId_2 typeId
+		FROM
+		(
+		SELECT
+		sayId_1 sayId_2,commenterId_1 commenterId_2,
+		userName_1
+		userName_2,headIcon_1 headIcon_2 ,sayContent_1 sayContent_2,
+		saySendTime_1 saySendTime_2,sayViews_1 sayViews_2,sayLovers_1
+		sayLovers_2,
+		sayOpen_1 sayOpen_2,sayDelete_1 sayDelete_2,user_name
+		commenterName_2,
+		commenteredId_1 commenteredId_2,commentContent_1
+		commentContent_2,
+		type_name typeName_2,typeId_1 typeId_2
+		FROM
+		(
+		SELECT
+		s.say_id sayId_1,
+		u.user_name userName_1,u.head_icon headIcon_1,
+		s.say_content sayContent_1,s.say_sendtime saySendTime_1,
+		s.say_views
+		sayViews_1,s.say_lovers sayLovers_1,
+		s.say_delete sayDelete_1, say_open
+		sayOpen_1,
+		c.commenter_id commenterId_1,c.commentered_id
+		commenteredId_1,
+		c.comment_conent commentContent_1,st.type_id typeId_1
+		FROM say s,`user` u,`comment` c,say_type st
+		WHERE
+		s.user_id = u.user_id
+		AND
+		s.say_id = c.say_id
+		AND
+		s.say_id = st.say_id
+		AND
+		s.say_id=#{sayId}
+		)sayTemp,type typeTemp,`user` userTemp
+		WHERE
+		sayTemp.typeId_1 =
+		typeTemp.type_id
+		AND
+		sayTemp.commenterId_1 = userTemp.user_id
+		)sayTemp1,`user` userTemp1
+		WHERE
+		sayTemp1.commenteredId_2 =
+		userTemp1.user_id
+	</select>
+
+	<select id="selectSayByPage" resultMap="SayCommentDTOResultMap">
+		SELECT
+		sayId_2 sayId,userName_2 userName,headIcon_2 headIcon,
+		sayContent_2 sayContent,saySendTime_2 saySendTime,
+		sayViews_2
+		sayViews,sayLovers_2 sayLovers,sayDelete_2 sayDelete,
+		sayOpen_2
+		sayOpen,commenterName_2 commenterName,user_name commenteredName,
+		commentContent_2 commentContent,typeName_2 typeName,typeId_2 typeId
+		FROM
+		(
+		SELECT
+		sayId_1 sayId_2,
+		userName_1 userName_2,headIcon_1 headIcon_2
+		,sayContent_1 sayContent_2,
+		saySendTime_1 saySendTime_2,sayViews_1
+		sayViews_2,sayLovers_1
+		sayLovers_2,
+		sayOpen_1 sayOpen_2,sayDelete_1
+		sayDelete_2,user_name commenterName_2,
+		commenteredId_1
+		commenteredId_2,commentContent_1 commentContent_2,
+		type_name
+		typeName_2,typeId_1 typeId_2
+		FROM
+		(
+		SELECT
+		s.say_id sayId_1,
+		u.user_name
+		userName_1,u.head_icon headIcon_1,
+		s.say_content
+		sayContent_1,s.say_sendtime saySendTime_1,
+		s.say_views
+		sayViews_1,s.say_lovers sayLovers_1,
+		s.say_delete sayDelete_1, say_open
+		sayOpen_1,
+		c.commenter_id commenterId_1,c.commentered_id
+		commenteredId_1,
+		c.comment_conent commentContent_1,st.type_id typeId_1
+		FROM say s,`user` u,`comment` c,say_type st
+		WHERE
+		s.user_id = u.user_id
+		AND
+		s.say_id = c.say_id
+		AND
+		s.say_id = st.say_id
+
+		)sayTemp,type
+		typeTemp,`user` userTemp
+		WHERE
+		sayTemp.typeId_1 = typeTemp.type_id
+		AND
+		sayTemp.commenterId_1 = userTemp.user_id
+		)sayTemp1,`user` userTemp1
+		WHERE sayTemp1.commenteredId_2 = userTemp1.user_id
+		<if test="userName != null">
+			AND
+			userName_2=#{userName}
+		</if>
+		<if test="typeName != null">
+			AND
+			typeName_2=#{typeName}
+		</if>
+		<if test="sayContent != null">
+			AND
+			sayContent_2 LIKE '%' #{sayContent} '%'
+		</if>
+		GROUP BY sayId
+		ORDER BY saySendTime DESC
+		LIMIT #{beginIndex},#{pageSize}
+	</select>
+
+	<select id="selectSayLovers" resultType="int">
+	SELECT say_lovers sayLovers FROM say WHERE say_id = #{userId}
+	</select>
+	<resultMap type="SayCommentDTO" id="SayCommentDTOResultMap">
+		<result property="sayId" column="sayId" />
+		<association property="userMsgDTO" javaType="UserMsgDTO">
+			<result property="userId" column="userId" />
+			<result property="userName" column="userName" />
+			<result property="headIcon" column="headIcon" />
+		</association>
+		<association property="sayMsgDTO" javaType="SayMsgDTO">
+			<result property="sayContent" column="sayContent" />
+			<result property="saySendTime" column="saySendTime" />
+			<result property="sayViews" column="sayViews" />
+			<result property="sayLovers" column="sayLovers" />
+			<result property="sayDelete" column="sayDelete" />
+			<result property="sayOpen" column="sayOpen" />
+		</association>
+		<collection property="commentMsgDTO" ofType="CommentMsgDTO">
+			<result property="commenterId" column="commenterId" />
+			<result property="commenteredId" column="commenteredId" />
+			<result property="commenterName" column="commenterName" />
+			<result property="commenteredName" column="commenteredName" />
+			<result property="commentContent" column="commentContent" />
+		</collection>
+		<collection property="typeNames" ofType="Type">
+			<result property="typeId" column="typeId" />
+			<result property="typeName" column="typeName" />
+		</collection>
+	</resultMap>
+
+	<resultMap type="TypeSayDTO" id="TypeSayDTOResultMap">
+		<result property="typeId" column="typeId" />
+		<collection property="userSayMsgDTO" ofType="UserSayMsgDTO">
+			<result property="userName" column="userName" />
+			<result property="headIcon" column="headIcon" />
+			<result property="sayContent" column="sayContent" />
+			<result property="saySendTime" column="saySendTime" />
+			<result property="sayViews" column="sayViews" />
+			<result property="sayLovers" column="sayLovers" />
+			<result property="sayDelete" column="sayDelete" />
+			<result property="sayOpen" column="sayOpen" />
+		</collection>
+	</resultMap>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from say
+		where say_id = #{sayId,jdbcType=INTEGER}
+	</delete>
+	<insert id="insertSelective" parameterType="com.yooai.modal.Say"  keyProperty="sayId">
+		insert into say
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="sayId != null">
+				say_id,
+			</if>
+			<if test="userId != null">
+				user_id,
+			</if>
+			<if test="sayViews != null">
+				say_views,
+			</if>
+			<if test="saySendtime != null">
+				say_sendtime,
+			</if>
+			<if test="sayLovers != null">
+				say_lovers,
+			</if>
+			<if test="sayOpen != null">
+				say_open,
+			</if>
+			<if test="sayDelete != null">
+				say_delete,
+			</if>
+			<if test="readStatus != null">
+				read_status,
+			</if>
+			<if test="top != null">
+				top,
+			</if>
+			<if test="sayContent != null">
+				say_content,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="sayId != null">
+				#{sayId,jdbcType=INTEGER},
+			</if>
+			<if test="userId != null">
+				#{userId,jdbcType=INTEGER},
+			</if>
+			<if test="sayViews != null">
+				#{sayViews,jdbcType=INTEGER},
+			</if>
+			<if test="saySendtime != null">
+				#{saySendtime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="sayLovers != null">
+				#{sayLovers,jdbcType=INTEGER},
+			</if>
+			<if test="sayOpen != null">
+				#{sayOpen,jdbcType=INTEGER},
+			</if>
+			<if test="sayDelete != null">
+				#{sayDelete,jdbcType=INTEGER},
+			</if>
+			<if test="readStatus != null">
+				#{readStatus,jdbcType=INTEGER},
+			</if>
+			<if test="top != null">
+				#{top,jdbcType=INTEGER},
+			</if>
+			<if test="sayContent != null">
+				#{sayContent,jdbcType=LONGVARCHAR},
+			</if>
+		</trim>
+	</insert>
+
+	<update id="setTopSay"  >
+		UPDATE say 
+		SET top=1
+		WHERE user_id=#{userId}
+		AND say_id=#{sayId}
+	</update>
+	
+	<update id="cancelTopSay"  >
+		UPDATE say 
+		SET top=0
+		WHERE user_id=#{userId}
+		AND say_id=#{sayId}
+	</update>
+	
+	<update id="updateOtherSayTop"  >
+		UPDATE say
+		SET top = 0
+		WHERE say_id !=#{sayId}
+		AND user_id=#{userId}
+	</update>
+	
+	<select id="selectTopSay"  resultMap="SayCommentDTOResultMap">
+		SELECT
+		u.user_id userId,say_id sayId,user_name userName,head_icon headIcon,
+		say_sendtime
+		saySendTime,say_content sayContent,say_lovers sayLovers,
+		say_views
+		sayViews,say_open sayOpen,say_delete sayDelete
+		FROM `user` u,say s
+		WHERE u.user_id = s.user_id
+		AND u.user_id =#{userId}
+		AND s.top=1
+	</select>
+
+	<update id="updateByPrimaryKeySelective" parameterType="com.yooai.modal.Say">
+		update say
+		<set>
+			<if test="userId != null">
+				user_id = #{userId,jdbcType=INTEGER},
+			</if>
+			<if test="sayViews != null">
+				say_views = #{sayViews,jdbcType=INTEGER},
+			</if>
+			<if test="saySendtime != null">
+				say_sendtime = #{saySendtime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="sayLovers != null">
+				say_lovers = #{sayLovers,jdbcType=INTEGER},
+			</if>
+			<if test="sayOpen != null">
+				say_open = #{sayOpen,jdbcType=INTEGER},
+			</if>
+			<if test="sayDelete != null">
+				say_delete = #{sayDelete,jdbcType=INTEGER},
+			</if>
+			<if test="readStatus != null">
+				read_status = #{readStatus,jdbcType=INTEGER},
+			</if>
+			<if test="top != null">
+				top = #{top,jdbcType=INTEGER},
+			</if>
+			<if test="sayContent != null">
+				say_content = #{sayContent,jdbcType=LONGVARCHAR},
+			</if>
+		</set>
+		where say_id = #{sayId,jdbcType=INTEGER}
+	</update>
+	
+	<delete id="deleteSayByUserId" >
+		DELETE FROM say
+		WHERE say_id=#{sayId}
+		AND user_id=#{userId}
+	</delete>
+</mapper>

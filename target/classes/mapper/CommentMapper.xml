@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yooai.dao.CommentMapper" >
+  <resultMap id="BaseResultMap" type="com.yooai.modal.Comment" >
+    <id column="comment_id" property="commentId" jdbcType="INTEGER" />
+    <result column="say_id" property="sayId" jdbcType="INTEGER" />
+    <result column="commenter_id" property="commenterId" jdbcType="INTEGER" />
+    <result column="commentered_id" property="commenteredId" jdbcType="INTEGER" />
+    <result column="comment_datatime" property="commentDatatime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.yooai.modal.Comment" extends="BaseResultMap" >
+    <result column="comment_conent" property="commentConent" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    comment_id, say_id, commenter_id, commentered_id, comment_datatime
+  </sql>
+  <sql id="Blob_Column_List" >
+    comment_conent
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from comment
+    where comment_id = #{commentId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from comment
+    where comment_id = #{commentId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insertSelective" parameterType="com.yooai.modal.Comment" >
+    insert into comment
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="commentId != null" >
+        comment_id,
+      </if>
+      <if test="sayId != null" >
+        say_id,
+      </if>
+      <if test="commenterId != null" >
+        commenter_id,
+      </if>
+      <if test="commenteredId != null" >
+        commentered_id,
+      </if>
+      <if test="commentDatatime != null" >
+        comment_datatime,
+      </if>
+      <if test="commentConent != null" >
+        comment_conent,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="commentId != null" >
+        #{commentId,jdbcType=INTEGER},
+      </if>
+      <if test="sayId != null" >
+        #{sayId,jdbcType=INTEGER},
+      </if>
+      <if test="commenterId != null" >
+        #{commenterId,jdbcType=INTEGER},
+      </if>
+      <if test="commenteredId != null" >
+        #{commenteredId,jdbcType=INTEGER},
+      </if>
+      <if test="commentDatatime != null" >
+        #{commentDatatime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="commentConent != null" >
+        #{commentConent,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yooai.modal.Comment" >
+    update comment
+    <set >
+      <if test="sayId != null" >
+        say_id = #{sayId,jdbcType=INTEGER},
+      </if>
+      <if test="commenterId != null" >
+        commenter_id = #{commenterId,jdbcType=INTEGER},
+      </if>
+      <if test="commenteredId != null" >
+        commentered_id = #{commenteredId,jdbcType=INTEGER},
+      </if>
+      <if test="commentDatatime != null" >
+        comment_datatime = #{commentDatatime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="commentConent != null" >
+        comment_conent = #{commentConent,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where comment_id = #{commentId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.yooai.modal.Comment" >
+    update comment
+    set say_id = #{sayId,jdbcType=INTEGER},
+      commenter_id = #{commenterId,jdbcType=INTEGER},
+      commentered_id = #{commenteredId,jdbcType=INTEGER},
+      comment_datatime = #{commentDatatime,jdbcType=TIMESTAMP},
+      comment_conent = #{commentConent,jdbcType=LONGVARCHAR}
+    where comment_id = #{commentId,jdbcType=INTEGER}
+  </update>
+</mapper>
